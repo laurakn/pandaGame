@@ -7,6 +7,10 @@ public class Movement : MonoBehaviour {
     public Vector2 jumpHeight;
     public LayerMask groundLayer;
     private bool facingLeft = false;
+    private bool grounded;
+
+    [SerializeField]
+    GameObject feet;
 
     Animator animator;
 
@@ -14,15 +18,18 @@ public class Movement : MonoBehaviour {
       animator = GetComponent<Animator>();
     }
 
+    void FixedUpdate() {
+      grounded = feet.GetComponent<BoxCollider2D>().IsTouchingLayers(groundLayer);
+    }
+    
     // Update is called once per frame
     void Update() {
-
       float h = Input.GetAxisRaw("Horizontal");
       float v = Input.GetAxisRaw("Vertical");
       bool j = Input.GetKeyDown(KeyCode.Space);
 
       animator.SetBool("idle", h==0);
-      animator.SetBool("jumping", !isGrounded());
+      animator.SetBool("jumping", !grounded);
 
       gameObject.transform.position = new Vector2 (transform.position.x + h * speed, transform.position.y);
 
@@ -43,7 +50,7 @@ public class Movement : MonoBehaviour {
     }
 
     void jump(){
-      if (!isGrounded()) {return;}
+      if (!grounded) {return;}
       else {
           GetComponent<Rigidbody2D>().AddForce(jumpHeight, ForceMode2D.Impulse);
       }
