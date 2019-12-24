@@ -21,14 +21,14 @@ public class Movement : MonoBehaviour {
     void FixedUpdate() {
       grounded = feet.GetComponent<BoxCollider2D>().IsTouchingLayers(groundLayer);
     }
-    
+
     // Update is called once per frame
     void Update() {
       float h = Input.GetAxisRaw("Horizontal");
       float v = Input.GetAxisRaw("Vertical");
       bool j = Input.GetKeyDown(KeyCode.Space);
 
-      animator.SetBool("idle", h==0);
+      animator.SetBool("idle", h==0 && grounded);
       animator.SetBool("jumping", !grounded);
 
       gameObject.transform.position = new Vector2 (transform.position.x + h * speed, transform.position.y);
