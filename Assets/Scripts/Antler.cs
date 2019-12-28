@@ -53,9 +53,9 @@ public class Antler : MonoBehaviour {
 
 		CalculateVelocity ();
 
-    float direction = facingLeft;
+    Vector2 direction = facingLeft ? Vector2.left : Vector2.right;
 
-		controller.Move (velocity * Time.deltaTime, direction);
+		controller.Move (direction * velocity * Time.deltaTime, true);
 
 		if (controller.collisions.above || controller.collisions.below) {
 			if (controller.collisions.slidingDownMaxSlope) {
