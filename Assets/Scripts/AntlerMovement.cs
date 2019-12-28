@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class AntlerMovement : MonoBehaviour {
     public float speed;
     public LayerMask wallLayer;
