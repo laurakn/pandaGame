@@ -14,6 +14,10 @@ public class PlayerInput : MonoBehaviour {
 	}
 
 	void Update () {
+		if (Input.GetKey(KeyCode.Escape)) {
+		        Application.Quit();
+		    }
+
 		Vector2 directionalInput = new Vector2 (Input.GetAxisRaw ("Horizontal"), Input.GetAxisRaw ("Vertical"));
 		player.SetDirectionalInput (directionalInput);
 
