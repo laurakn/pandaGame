@@ -6,11 +6,11 @@ using System.Collections.Generic;
 public class PlayerInput : MonoBehaviour {
 
 	Player player;
-  Animator animator;
+  	Animator animator;
 
 	void Start () {
 		player = GetComponent<Player> ();
-    animator = GetComponent<Animator>();
+    	animator = GetComponent<Animator>();
 	}
 
 	void Update () {
