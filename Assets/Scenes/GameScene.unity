@@ -740,7 +740,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &1302929548
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -991,6 +991,7 @@ GameObject:
   - component: {fileID: 2103217421}
   - component: {fileID: 2103217423}
   - component: {fileID: 2103217416}
+  - component: {fileID: 2103217424}
   m_Layer: 10
   m_Name: Player
   m_TagString: Player
@@ -1013,13 +1014,9 @@ MonoBehaviour:
   maxJumpHeight: 4
   minJumpHeight: 1
   timeToJumpApex: 0.4
-  wallJumpClimb: {x: 0, y: 0}
-  wallJumpOff: {x: 0, y: 0}
-  wallLeap: {x: 0, y: 0}
-  wallSlideSpeedMax: 3
-  wallStickTime: 0.25
   facingLeft: 0
   grounded: 0
+  jumping: 0
 --- !u!95 &2103217417
 Animator:
   serializedVersion: 3
@@ -1097,7 +1094,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2103217415}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.89, y: -2.96, z: 1}
+  m_LocalPosition: {x: 5.39, y: -1.25, z: 1}
   m_LocalScale: {x: 0.2609028, y: 0.2609028, z: 0.5218056}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1141,15 +1138,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0587610b640764f4eba1901bced456ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxSlopeAngle: 20
+  skinWidth: 0.5
+  minMoveDistance: 0.0001
   collisionMask:
     serializedVersion: 2
     m_Bits: 768
-  horizontalRayCount: 0
-  verticalRayCount: 0
-  horizontalRaySpacing: 0
-  verticalRaySpacing: 0
-  collider: {fileID: 0}
-  maxSlopeAngle: 80
   playerInput: {x: 0, y: 0}
 --- !u!114 &2103217422
 MonoBehaviour:
@@ -1175,3 +1169,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c299cf497be2a493fb83f0bcbc280164, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!50 &2103217424
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103217415}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0

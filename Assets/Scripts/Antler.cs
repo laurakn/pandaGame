@@ -49,7 +49,7 @@ public class Antler : MonoBehaviour
 
     void Update()
     {
-        bool atWall = controller.collisions.left || controller.collisions.right;
+        bool atWall = controller.collisions.left.HasValue || controller.collisions.right.HasValue;
         if (atWall)
         {
             turn();
@@ -59,21 +59,12 @@ public class Antler : MonoBehaviour
 
         Vector2 direction = facingLeft ? Vector2.left : Vector2.right;
 
-        controller.Move(direction * velocity * Time.deltaTime, true);
+        controller.Move(direction * velocity * Time.deltaTime);
 
-        if (controller.collisions.above || controller.collisions.below)
+        if (controller.collisions.above.HasValue || controller.collisions.below.HasValue)
         {
-            if (controller.collisions.slidingDownMaxSlope)
-            {
-                velocity.y += controller.collisions.slopeNormal.y * -gravity * Time.deltaTime;
-            }
-            else
-            {
-                velocity.y = 0;
-            }
+            velocity.y = 0;
         }
-
-
     }
 
     public void turn()
@@ -87,7 +78,7 @@ public class Antler : MonoBehaviour
     void CalculateVelocity()
     {
         float targetVelocityX = directionalInput.x * moveSpeed;
-        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below.HasValue) ? accelerationTimeGrounded : accelerationTimeAirborne);
         velocity.y += gravity * Time.deltaTime;
     }
 }
