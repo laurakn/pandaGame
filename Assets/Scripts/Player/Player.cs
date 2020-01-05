@@ -46,14 +46,14 @@ public class Player : MonoBehaviour
     {
         CalculateVelocity();
 
-        controller.Move((velocity * Time.deltaTime) + (controller.collisions.residualMovement ?? Vector2.zero));
+        controller.Move((velocity * Time.deltaTime)); //+ (controller.collisions.residualMovement ?? Vector2.zero));
 
         //if (controller.collisions.residualMovement.HasValue)
         //{
         //    Debug.Log(controller.collisions.residualMovement.Value.x + "," + controller.collisions.residualMovement.Value.y);
         //}
 
-        grounded = controller.collisions.below.HasValue;
+        grounded = controller.IsGrounded();
 
         if (grounded && velocity.y <= 0)
         {
@@ -92,6 +92,7 @@ public class Player : MonoBehaviour
     {
         float targetVelocityX = directionalInput.x * moveSpeed;
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below.HasValue) ? accelerationTimeGrounded : accelerationTimeAirborne);
-        velocity.y += gravity * Time.deltaTime;
+        if (!grounded)
+            velocity.y += gravity * Time.deltaTime;
     }
 }

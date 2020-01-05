@@ -5,6 +5,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Collider2D))]
 public class Controller2D : MonoBehaviour
 {
+	private static float fourtyFiveDegrees = Mathf.Cos(Mathf.PI/4);
 
     public float maxSlopeAngle = 80;
 
@@ -29,9 +30,19 @@ public class Controller2D : MonoBehaviour
         hits = new List<RaycastHit2D>();
     }
 
+    public bool IsGrounded()
+    {
+        RaycastHit2D groundHit = Physics2D.Raycast(collider.bounds.center, Vector2.down, collider.bounds.extents.y + (skinWidth * 2), collisionMask);
+        return groundHit.collider != null;
+    }
+
     public void Move(Vector2 moveAmount)
     {
         collisions = new CollisionInfo();
+
+		if (moveAmount.magnitude < minMoveDistance) {
+			return;
+		}
 
         ContactFilter2D filter = new ContactFilter2D();
         filter.SetLayerMask(collisionMask);
@@ -39,11 +50,18 @@ public class Controller2D : MonoBehaviour
         Vector2 direction = moveAmount;
         direction.Normalize();
 
+		float cosAngle = Mathf.Abs(Vector2.Dot(direction, Vector2.right));
+		if (cosAngle < fourtyFiveDegrees) {
+			cosAngle = Mathf.Abs(Vector2.Dot(direction, Vector2.down));
+		}
+
+		float modifiedSkinWidth = skinWidth/cosAngle;
+
         float distance = moveAmount.magnitude;
 
-        int numHits = collider.Cast(direction, filter, hits, distance + skinWidth);
+        int numHits = collider.Cast(direction, filter, hits, distance + modifiedSkinWidth);
 
-        Debug.DrawRay(collider.bounds.center, direction * (distance + skinWidth), Color.red);
+        Debug.DrawRay(collider.bounds.center, direction * (distance + modifiedSkinWidth), Color.red);
 
         if (numHits == 0)
         {
@@ -63,21 +81,21 @@ public class Controller2D : MonoBehaviour
                 Debug.DrawRay(hit.point, hit.normal, Color.magenta);
             }
 
-            Vector2 newMove = direction * (minHit.distance - skinWidth);
+            Vector2 newMove = direction * (minHit.distance - modifiedSkinWidth);
 
-                gameObject.transform.Translate(newMove);
             if (newMove.magnitude > minMoveDistance)
             {
+                gameObject.transform.Translate(newMove);
 
-                //float collisionAngle = Vector2.Angle(minHit.normal, -1 * direction);
-                //if (collisionAngle > maxSlopeAngle)
-                //{
-                //    float residualDistance = distance - newMove.magnitude;
-                //    Vector2 residualDirection = Vector2.Perpendicular(minHit.normal);
-                //    residualDirection = residualDirection * Mathf.Sign(Vector2.Dot(direction, residualDirection));
-                //    collisions.residualMovement = residualDirection * residualDistance;
-                //    Debug.DrawRay(minHit.point, residualDirection, Color.black);
-                //}
+                float collisionAngle = Vector2.Angle(minHit.normal, -1 * direction);
+                if (collisionAngle > maxSlopeAngle)
+                {
+                    float residualDistance = distance - newMove.magnitude;
+                    Vector2 residualDirection = Vector2.Perpendicular(minHit.normal);
+                    residualDirection = residualDirection * Mathf.Sign(Vector2.Dot(direction, residualDirection));
+                    collisions.residualMovement = residualDirection * residualDistance;
+                    Debug.DrawRay(minHit.point, residualDirection, Color.black);
+                }
             }
 
             if (collider.ClosestPoint(minHit.point - newMove).y < collider.bounds.extents.y * .02)
