@@ -8,13 +8,15 @@ public class LoadingSceneIntegration : MonoBehaviour {
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void InitLoadingScene() {
-        Debug.Log("InitLoadingScene()");
-        int sceneIndex = SceneManager.GetActiveScene().buildIndex;
-        if (sceneIndex == 0) return;
+        if (!ReturnToScene.loaded) {
+            Debug.Log("InitLoadingScene()");
+            int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+            if (sceneIndex == 0) return;
 
-        Debug.Log("Loading _preload scene");
-        otherScene = sceneIndex;
-        SceneManager.LoadScene(0); 
+            Debug.Log("Loading _preload scene");
+            otherScene = sceneIndex;
+            SceneManager.LoadScene(0); 
+        }
     }
 #endif
 }
