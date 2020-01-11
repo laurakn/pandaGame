@@ -7,37 +7,36 @@ public class HealthController : MonoBehaviour {
     Animator[] anims;
       
     [HideInInspector]
-    private int health;
     public static int updateHealth;
     public GameObject objectToFollow;
 
     void Start () {
-        health = 3;
-        updateHealth = 3;
+        updateHealth = GameManager.health;
         anims = GetComponentsInChildren<Animator> ();
     }
 
     void Update () {
         // Follow camera
-        float posX = objectToFollow.transform.position.x - 7;
-        float posY = objectToFollow.transform.position.y + 3;
+        float posX = objectToFollow.transform.position.x - 30;
+        float posY = objectToFollow.transform.position.y + 14;
         transform.position = new Vector2 (posX, posY);
 
+        int health = GameManager.health;
         // Animation updates
-        if (health > updateHealth) {
-            health = updateHealth;
+        if (GameManager.health > updateHealth) {
+            GameManager.health = updateHealth;
             foreach (Animator anim in anims) {
                 anim.SetBool("damage", true);
-                anim.SetInteger("health", health);
+                anim.SetInteger("health", GameManager.health);
                 
             }
             print("damage");
         } 
-        else if (health < updateHealth) {
-            health = updateHealth;
+        else if (GameManager.health < updateHealth) {
+            GameManager.health = updateHealth;
             foreach (Animator anim in anims){
                 anim.SetBool("healthGain", true);
-                anim.SetInteger("health", health);
+                anim.SetInteger("health", GameManager.health);
             }
             print("health");
         }

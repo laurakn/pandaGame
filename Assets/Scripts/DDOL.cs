@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class DDOL : MonoBehaviour {
     void Awake() {
-        print("DDOLAwake");
+        Debug.Log("DDOLAwake");
         DontDestroyOnLoad(this.gameObject);
     }
 }
