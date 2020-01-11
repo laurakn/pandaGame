@@ -2,143 +2,130 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-[RequireComponent (typeof (Controller2D))]
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
+    public LayerMask groundLayer;
 
-	public float maxJumpHeight = 4;
-	public float minJumpHeight = 1;
-	public float timeToJumpApex = .4f;
-	float accelerationTimeAirborne = .2f;
-	float accelerationTimeGrounded = .1f;
-	float moveSpeed = 6;
+    public float maxJumpHeight = 4;
+    public float timeToJumpApex = .4f;
 
-	public Vector2 wallJumpClimb;
-	public Vector2 wallJumpOff;
-	public Vector2 wallLeap;
+    public float fallingGravityMultiplier = 4;
 
-	public float wallSlideSpeedMax = 3;
-	public float wallStickTime = .25f;
-	float timeToWallUnstick;
+    public bool allowAirControl = true;
 
-	float gravity;
-	float maxJumpVelocity;
-	float minJumpVelocity;
-	Vector3 velocity;
-	float velocityXSmoothing;
+    float accelerationTimeAirborne = .2f;
+    float accelerationTimeGrounded = .1f;
+    public float moveSpeed = 6;
 
-	Controller2D controller;
+    float maxJumpVelocity;
+    float velocityXSmoothing;
 
-	Vector2 directionalInput;
-	bool wallSliding;
-	int wallDirX;
+    float jumpTime;
 
-  [HideInInspector]
-  public bool facingLeft = false;
-  [HideInInspector]
-  public bool grounded;
+    Vector2? directionalInput = null;
 
-	void Start() {
-		controller = GetComponent<Controller2D> ();
+    [HideInInspector]
+    public bool facingLeft = false;
 
-		gravity = -(2 * maxJumpHeight) / Mathf.Pow (timeToJumpApex, 2);
-		maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
-		minJumpVelocity = Mathf.Sqrt (2 * Mathf.Abs (gravity) * minJumpHeight);
-	}
+    [HideInInspector]
+    public bool grounded = false;
 
-	void Update() {
-		CalculateVelocity ();
-		HandleWallSliding ();
+    [HideInInspector]
+    public bool jumping = false;
 
-		controller.Move (velocity * Time.deltaTime, directionalInput);
+    Rigidbody2D rigidbody;
+    Collider2D collider;
 
-		if (controller.collisions.above || controller.collisions.below) {
-			if (controller.collisions.slidingDownMaxSlope) {
-				velocity.y += controller.collisions.slopeNormal.y * -gravity * Time.deltaTime;
-			} else {
-				velocity.y = 0;
-			}
-		}
+    Collision2D currentCollision = null;
 
-    grounded = controller.collisions.below;
-	}
+    List<ContactPoint2D> contactPoints;
 
-  public void turn() {
-    Vector2 theScale = transform.localScale;
-    theScale.x *= -1;
-    transform.localScale = theScale;
-    facingLeft = !facingLeft;
-  }
+    void Start()
+    {
+        maxJumpVelocity = maxJumpHeight / timeToJumpApex;
 
-	public void SetDirectionalInput (Vector2 input) {
-		directionalInput = input;
-	}
+        rigidbody = GetComponent<Rigidbody2D>();
+        collider = GetComponent<Collider2D>();
 
-	public void OnJumpInputDown() {
-		if (wallSliding) {
-			if (wallDirX == directionalInput.x) {
-				velocity.x = -wallDirX * wallJumpClimb.x;
-				velocity.y = wallJumpClimb.y;
-			}
-			else if (directionalInput.x == 0) {
-				velocity.x = -wallDirX * wallJumpOff.x;
-				velocity.y = wallJumpOff.y;
-			}
-			else {
-				velocity.x = -wallDirX * wallLeap.x;
-				velocity.y = wallLeap.y;
-			}
-		}
-		if (controller.collisions.below) {
-			if (controller.collisions.slidingDownMaxSlope) {
-				if (directionalInput.x != -Mathf.Sign (controller.collisions.slopeNormal.x)) { // not jumping against max slope
-					velocity.y = maxJumpVelocity * controller.collisions.slopeNormal.y;
-					velocity.x = maxJumpVelocity * controller.collisions.slopeNormal.x;
-				}
-			} else {
-				velocity.y = maxJumpVelocity;
-			}
-		}
-	}
+        contactPoints = new List<ContactPoint2D>();
+    }
 
-	public void OnJumpInputUp() {
-		if (velocity.y > minJumpVelocity) {
-			velocity.y = minJumpVelocity;
-		}
-	}
+    void FixedUpdate()
+    {
+        if (directionalInput.HasValue)
+        {
+            float targetVelocityX = directionalInput.Value.x * moveSpeed;
+            float forceMagnitude = rigidbody.mass * (targetVelocityX - rigidbody.velocity.x) / Time.fixedDeltaTime;
+            rigidbody.AddForce(forceMagnitude * Vector2.right);
+        }
 
+        if (jumping)
+        {
+            float jumpAcceleration = (maxJumpVelocity - rigidbody.velocity.y) / Time.fixedDeltaTime;
+            rigidbody.AddForce(jumpAcceleration * rigidbody.mass * Vector2.up);
 
-	void HandleWallSliding() {
-		wallDirX = (controller.collisions.left) ? -1 : 1;
-		wallSliding = false;
-		if ((controller.collisions.left || controller.collisions.right) && !controller.collisions.below && velocity.y < 0) {
-			wallSliding = true;
+            jumpTime += Time.fixedDeltaTime;
+        }
 
-			if (velocity.y < -wallSlideSpeedMax) {
-				velocity.y = -wallSlideSpeedMax;
-			}
+        if (jumpTime >= timeToJumpApex)
+        {
+            jumping = false;
+        }
 
-			if (timeToWallUnstick > 0) {
-				velocityXSmoothing = 0;
-				velocity.x = 0;
+        // Additional acceleration for falling for a snappier feel
+        if (!grounded && rigidbody.velocity.y <= 0)
+        {
+            rigidbody.AddForce(rigidbody.mass * Physics2D.gravity * fallingGravityMultiplier);
+        }
 
-				if (directionalInput.x != wallDirX && directionalInput.x != 0) {
-					timeToWallUnstick -= Time.deltaTime;
-				}
-				else {
-					timeToWallUnstick = wallStickTime;
-				}
-			}
-			else {
-				timeToWallUnstick = wallStickTime;
-			}
+        // Raycast from center of the collider downwards to check if grounded
+        grounded = Physics2D.Raycast(collider.bounds.center, Vector2.down, collider.bounds.extents.y * 1.1f, groundLayer).collider != null;
+    }
 
-		}
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        //currentCollision = collision;
+        //int numContacts = collision.GetContacts(contactPoints);
+        //if (numContacts > 0)
+        //    Debug.Log(contactPoints[0]);
+    }
 
-	}
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        currentCollision = null;
+    }
 
-	void CalculateVelocity() {
-		float targetVelocityX = directionalInput.x * moveSpeed;
-		velocity.x = Mathf.SmoothDamp (velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below)?accelerationTimeGrounded:accelerationTimeAirborne);
-		velocity.y += gravity * Time.deltaTime;
-	}
+    void Update()
+    {
+    }
+
+    public void turn()
+    {
+        Vector2 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;
+        facingLeft = !facingLeft;
+    }
+
+    public void SetDirectionalInput(Vector2 input)
+    {
+        if (allowAirControl || grounded)
+            directionalInput = input;
+        else
+            directionalInput = null;
+    }
+
+    public void OnJumpInputDown()
+    {
+        if (!jumping && grounded)
+        {
+            jumping = true;
+            jumpTime = 0f;
+        }
+    }
+
+    public void OnJumpInputUp()
+    {
+        jumping = false;
+    }
 }
