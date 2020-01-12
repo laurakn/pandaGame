@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class HealthController : MonoBehaviour {
 
-    Animator[] anims;
+    GameObject[] healthLanterns;
+
+    Animator[] animList;
       
     [HideInInspector]
     public static int updateHealth;
@@ -12,39 +14,40 @@ public class HealthController : MonoBehaviour {
 
     void Start () {
         updateHealth = GameManager.health;
-        anims = GetComponentsInChildren<Animator> ();
+        animList = GetComponentsInChildren<Animator> ();
+        for (int i = 0; i < animList.Length; i++){
+            animList[i].enabled = false;
+        }
     }
 
     void Update () {
-        // Follow camera
-        float posX = objectToFollow.transform.position.x - 30;
-        float posY = objectToFollow.transform.position.y + 14;
-        transform.position = new Vector2 (posX, posY);
+        
+        followCamera();
 
         int health = GameManager.health;
         // Animation updates
         if (GameManager.health > updateHealth) {
-            GameManager.health = updateHealth;
-            foreach (Animator anim in anims) {
-                anim.SetBool("damage", true);
-                anim.SetInteger("health", GameManager.health);
-                
-            }
+            takeDamage();
             print("damage");
         } 
         else if (GameManager.health < updateHealth) {
-            GameManager.health = updateHealth;
-            foreach (Animator anim in anims){
-                anim.SetBool("healthGain", true);
-                anim.SetInteger("health", GameManager.health);
-            }
+            gainHealth();
             print("health");
         }
-        else {
-            foreach (Animator anim in anims){
-                anim.SetBool("healthGain", false);
-                anim.SetBool("damage", false);
-            }
-        }
+    }
+
+    void takeDamage() {
+        animList[updateHealth].enabled = true;
+        print(updateHealth);
+    }
+
+    void gainHealth() {
+
+    }
+
+    void followCamera() {
+        float posX = objectToFollow.transform.position.x;
+        float posY = objectToFollow.transform.position.y;
+        transform.position = new Vector2 (posX, posY);
     }
 }
