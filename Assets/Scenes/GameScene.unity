@@ -1137,11 +1137,11 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
-  maxJumpHeight: 8
-  timeToJumpApex: 0.4
+  maxJumpHeight: 3
   fallingGravityMultiplier: 4
   allowAirControl: 1
   moveSpeed: 12
+  maxJumpTime: 0.2
   facingLeft: 0
   grounded: 0
   jumping: 0
@@ -1266,16 +1266,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0587610b640764f4eba1901bced456ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collisionMask:
-    serializedVersion: 2
-    m_Bits: 768
-  horizontalRayCount: 0
-  verticalRayCount: 0
-  horizontalRaySpacing: 0
-  verticalRaySpacing: 0
-  collider: {fileID: 0}
-  maxSlopeAngle: 80
-  playerInput: {x: 0, y: 0}
 --- !u!114 &2103217422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1300,6 +1290,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c299cf497be2a493fb83f0bcbc280164, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  recoveryTime: 2
 --- !u!50 &2103217424
 Rigidbody2D:
   serializedVersion: 4
@@ -1315,7 +1306,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 4
+  m_GravityScale: 10
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
