@@ -13,11 +13,10 @@ public class PlayerHealth : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collision) {
 
         if (collision.gameObject.tag == "Enemy") {
-            timer += Time.deltaTime;
-            if (timer > recoveryTime) {
-                timer = 0.0f;
-            HealthController.updateHealth -= 1;
-            //Debug.Log("collision");
+            if (Time.time - timer > recoveryTime) {
+                timer = Time.time;
+                HealthController.updateHealth -= 1;
+                Debug.Log("collision");
             } 
         }
     }
