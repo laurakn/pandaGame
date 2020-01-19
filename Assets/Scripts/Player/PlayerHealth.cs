@@ -7,7 +7,7 @@ using UnityEngine;
 public class PlayerHealth : MonoBehaviour
 {
     private float timer = 0.0f;
-    public float recoveryTime = 2.0f;
+    public float recoveryTime = 1.0f;
     HealthController HealthController;
 
     void OnCollisionEnter2D(Collision2D collision) {

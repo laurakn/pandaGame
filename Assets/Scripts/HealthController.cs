@@ -28,10 +28,12 @@ public class HealthController : MonoBehaviour {
         // Animation updates
         if (GameManager.health > updateHealth) {
             takeDamage();
+            GameManager.health = updateHealth;
             print("damage");
         } 
         else if (GameManager.health < updateHealth) {
             gainHealth();
+            GameManager.health = updateHealth;
             print("health");
         }
     }

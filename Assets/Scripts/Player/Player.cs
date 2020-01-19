@@ -14,7 +14,7 @@ public class Player : MonoBehaviour {
 
     float accelerationTimeAirborne = .2f;
     float accelerationTimeGrounded = .1f;
-    public float moveSpeed = 6;
+    public float moveSpeed = 30;
 
     float velocityXSmoothing;
 
