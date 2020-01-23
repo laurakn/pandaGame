@@ -6,10 +6,8 @@ public class EnemyBaseClass : MonoBehaviour {
 
   public float triggerRaycastDistance;
   public LayerMask playerLayer; 
-  public float rayLength = 1f;
-
   [HideInInspector]
-  public bool facingLeft; 
+  public int facingLeft; 
   [HideInInspector]
   public bool checkRaycastSight;
   [HideInInspector]
@@ -20,6 +18,8 @@ public class EnemyBaseClass : MonoBehaviour {
   public float distanceCheckWait = 1.0f, distanceTime = 0.0f;
   [HideInInspector]
   public float playerSpeed;
+  [HideInInspector]
+  public float rayLength;
   
 
   // Only check raycast every quater second
@@ -38,8 +38,7 @@ public class EnemyBaseClass : MonoBehaviour {
       // if far away, update wait time for next check
       if (distance > 0) {
         distanceCheckWait = distance / playerSpeed;
-        // if very far away, enemy now ignores player if they were engaged.
-        if (distance > 100) checkRaycastSight = false;
+        checkRaycastSight = false;
       }
       // if close to player, check if enemy can "see" player.
       else {
@@ -49,21 +48,21 @@ public class EnemyBaseClass : MonoBehaviour {
     }
   }
 
-  public void raycastSight(){
+  public float raycastSight(){
+    float hitDistance = triggerRaycastDistance;
     raycastTime += Time.deltaTime;
     if (raycastTime > raycastCheckWait){
-      float h = facingLeft ? 1 : -1;
       // arc of nRays from 3pi/4 to 5pi/4, since facing left is h=1.
       for (int i = 0; i < nRays; i++) {
         float x = Mathf.Cos(3*Mathf.PI/4 + i*Mathf.PI/2/nRays);
         float y = Mathf.Sin(3*Mathf.PI/4 + i*Mathf.PI/2/nRays);
-        RaycastHit2D seePlayer = Physics2D.Raycast(transform.position, new Vector2(x, y)*h, rayLength, playerLayer);
-        Debug.DrawRay(transform.position, new Vector2(x, y)*h*rayLength, Color.magenta);
-
-        if (seePlayer) {
-          engage = true;
+        RaycastHit2D hitPlayer = Physics2D.Raycast(transform.position, new Vector2(x, y)*facingLeft, rayLength, playerLayer);
+        Debug.DrawRay(transform.position, new Vector2(x, y)*facingLeft*rayLength, Color.magenta);
+        if (hitPlayer.distance < hitDistance) {
+          hitDistance = hitPlayer.distance;
         }
       }
     }
+    return hitDistance;
   }
 }
