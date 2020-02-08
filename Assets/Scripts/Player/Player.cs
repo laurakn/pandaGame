@@ -9,9 +9,12 @@ public class Player : MonoBehaviour {
     public float jumpSpeed = 4;
     public bool allowAirControl = true;
     public float moveSpeed = 6;
+    public float fallVelocityScale = 1;
+    public float jumpMomentumCutoff = .8f;
 
     /** Calculated variables */
     float maxJumpTime;
+    float jumpHeightScaled;
 
     /** Runtime variables */
     float jumpTime;
@@ -30,18 +33,27 @@ public class Player : MonoBehaviour {
     Rigidbody2D rigidbody;
     Collider2D collider;
 
+    SpriteRenderer spriteRenderer;
+
     Collision2D currentCollision = null;
 
     List<ContactPoint2D> contactPoints;
 
+    private bool slowingDown = false;
+
     void Start() {
         rigidbody = GetComponent<Rigidbody2D>();
         collider = GetComponent<Collider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         contactPoints = new List<ContactPoint2D>();
 
-        float jumpHeightScaled = maxJumpHeight * GetComponent<SpriteRenderer>().bounds.extents.y * 2;
+        jumpHeightScaled = maxJumpHeight * spriteRenderer.bounds.extents.y * 2;
         maxJumpTime = jumpHeightScaled / jumpSpeed;
+
+        rigidbody.gravityScale = fallVelocityScale * fallVelocityScale * jumpSpeed * jumpSpeed / (Physics2D.gravity.magnitude * jumpHeightScaled);
+
+        Debug.Log(spriteRenderer.bounds.extents.y * 2);
     }
 
     void FixedUpdate() {
@@ -60,22 +72,41 @@ public class Player : MonoBehaviour {
     }
 
     private void handleJumpMechanics() {
+        if (jumpTime >= jumpMomentumCutoff * maxJumpTime && !slowingDown) {
+            Debug.DrawRay(spriteRenderer.bounds.min, Vector2.left * 20, Color.green, maxJumpTime * 2);
+            slowingDown = true;
+            setVerticalVelocity(
+                Mathf.Sqrt(
+                    2 * rigidbody.gravityScale * Physics2D.gravity.magnitude * jumpHeightScaled * (1 - jumpMomentumCutoff)));
+        }
+
         if (jumping) {
-            setVerticalVelocity(jumpSpeed);
+            if (!slowingDown) {
+                setVerticalVelocity(jumpSpeed);
+            }
             jumpTime += Time.fixedDeltaTime;
+        } else if (hasJumpMomentum() && !slowingDown) {
+            scaleVerticalVelocity(.75f);
         }
 
         if (jumpTime >= maxJumpTime) {
             jumping = false;
             jumpTime = 0;
-            setVerticalVelocity(rigidbody.velocity.y/3);
         }
+    }
+
+    private void scaleVerticalVelocity(float factor) {
+        setVerticalVelocity(factor * rigidbody.velocity.y);
+    }
+
+    private bool hasJumpMomentum() {
+        return jumpTime < maxJumpTime && rigidbody.velocity.y > 0;
     }
 
     private void checkGround() {
         // Raycast from center of the collider downwards to check if grounded
         grounded = Physics2D.Raycast(
-            collider.bounds.center, Vector2.down, collider.bounds.extents.y * 1.1f, groundLayer).collider != null;
+            collider.bounds.center, Vector2.down, collider.bounds.extents.y * 1.2f, groundLayer).collider != null;
     }
 
     private void setHorizontalVelocity(float speed) {
@@ -117,13 +148,16 @@ public class Player : MonoBehaviour {
         if (!jumping && grounded) {
             jumping = true;
             jumpTime = 0f;
+            slowingDown = false;
+
+            Debug.DrawRay(spriteRenderer.bounds.min, Vector2.left * 20, Color.red, maxJumpTime * 2);
+            Debug.DrawRay(spriteRenderer.bounds.min + new Vector3(0, jumpHeightScaled, 0), Vector2.left * 20, Color.red, maxJumpTime * 2);
         }
     }
 
     public void OnJumpInputUp() {
         if (!grounded && rigidbody.velocity.y > 0) {
             jumping = false;
-            setVerticalVelocity(rigidbody.velocity.y/3);
         }
     }
 }
