@@ -40,7 +40,7 @@ public class Player : MonoBehaviour {
 
         contactPoints = new List<ContactPoint2D>();
 
-        float jumpHeightScaled = maxJumpHeight * collider.bounds.extents.y * 2;
+        float jumpHeightScaled = maxJumpHeight * GetComponent<SpriteRenderer>().bounds.extents.y * 2;
         maxJumpTime = jumpHeightScaled / jumpSpeed;
     }
 
