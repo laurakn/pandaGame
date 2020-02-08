@@ -1565,17 +1565,27 @@ PrefabInstance:
     - target: {fileID: 2401110108428778985, guid: 6c209740b131c4fdda670c1cff8d99c3,
         type: 3}
       propertyPath: m_GravityScale
-      value: 10
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2401110108428778988, guid: 6c209740b131c4fdda670c1cff8d99c3,
         type: 3}
       propertyPath: maxJumpHeight
-      value: 3
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2401110108428778988, guid: 6c209740b131c4fdda670c1cff8d99c3,
         type: 3}
       propertyPath: maxJumpTime
-      value: 0.2
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2401110108428778988, guid: 6c209740b131c4fdda670c1cff8d99c3,
+        type: 3}
+      propertyPath: fallingGravityMultiplier
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2401110108428778988, guid: 6c209740b131c4fdda670c1cff8d99c3,
+        type: 3}
+      propertyPath: jumpSpeed
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2401110108428778991, guid: 6c209740b131c4fdda670c1cff8d99c3,
         type: 3}
@@ -1585,7 +1595,7 @@ PrefabInstance:
     - target: {fileID: 2401110108428778991, guid: 6c209740b131c4fdda670c1cff8d99c3,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 20.1
+      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: 2401110108428778991, guid: 6c209740b131c4fdda670c1cff8d99c3,
         type: 3}
