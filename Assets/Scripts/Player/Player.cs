@@ -52,8 +52,6 @@ public class Player : MonoBehaviour {
         maxJumpTime = jumpHeightScaled / jumpSpeed;
 
         rigidbody.gravityScale = fallVelocityScale * fallVelocityScale * jumpSpeed * jumpSpeed / (Physics2D.gravity.magnitude * jumpHeightScaled);
-
-        Debug.Log(spriteRenderer.bounds.extents.y * 2);
     }
 
     void FixedUpdate() {
@@ -67,13 +65,15 @@ public class Player : MonoBehaviour {
     private void handleHorizontalMovement() {
         if (directionalInput.HasValue) {
             float targetVelocityX = directionalInput.Value.x * moveSpeed;
+            //float newSpeed = rigidbody.velocity.x + (directionalInput.Value.x * moveSpeed/2);
+            //newSpeed = Mathf.Abs(newSpeed) > moveSpeed ? directionalInput.Value.x * moveSpeed : newSpeed;
+
             setHorizontalVelocity(targetVelocityX);
         }
     }
 
     private void handleJumpMechanics() {
         if (jumpTime >= jumpMomentumCutoff * maxJumpTime && !slowingDown) {
-            Debug.DrawRay(spriteRenderer.bounds.min, Vector2.left * 20, Color.green, maxJumpTime * 2);
             slowingDown = true;
             setVerticalVelocity(
                 Mathf.Sqrt(
@@ -120,8 +120,16 @@ public class Player : MonoBehaviour {
     void OnCollisionEnter2D(Collision2D collision) {
         //currentCollision = collision;
         //int numContacts = collision.GetContacts(contactPoints);
-        //if (numContacts > 0)
-        //    Debug.Log(contactPoints[0]);
+        //if (numContacts > 0) {
+        //    for (int i = 0; i < numContacts; i++) {
+        //        ContactPoint2D contact = contactPoints[i];
+        //        if (contact.collider.tag.Equals("Enemy")) {
+        //            Debug.Log("Hit enemy!");
+        //            //rigidbody.velocity = -1 * contact.normal * moveSpeed * 100;
+        //            rigidbody.AddForce(contact.normalImpulse * Vector2.up * 10, ForceMode2D.Impulse);
+        //        }
+        //    }
+        //}
     }
 
     void OnCollisionExit2D(Collision2D collision) {
@@ -149,9 +157,6 @@ public class Player : MonoBehaviour {
             jumping = true;
             jumpTime = 0f;
             slowingDown = false;
-
-            Debug.DrawRay(spriteRenderer.bounds.min, Vector2.left * 20, Color.red, maxJumpTime * 2);
-            Debug.DrawRay(spriteRenderer.bounds.min + new Vector3(0, jumpHeightScaled, 0), Vector2.left * 20, Color.red, maxJumpTime * 2);
         }
     }
 
