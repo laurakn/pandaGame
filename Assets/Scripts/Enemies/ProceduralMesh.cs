@@ -41,8 +41,8 @@ public class ProceduralMesh : MonoBehaviour {
             springSizes[i, (i + 1) % numVertices] = Vector2.Distance(vertices2D[i], vertices2D[(i + 1) % numVertices]);
             var previous = i == 0 ? numVertices - 1 : i - 1;
             springSizes[i, previous] = Vector2.Distance(vertices2D[i], vertices2D[previous]);
-            //var opposite = (i + numVertices / 2) % numVertices;
-            //springSizes[i, opposite] = Vector2.Distance(vertices2D[i], vertices2D[opposite]);
+            var opposite = (i + numVertices / 2) % numVertices;
+            springSizes[i, opposite] = Vector2.Distance(vertices2D[i], vertices2D[opposite]);
         }
 
         var vertices3D = System.Array.ConvertAll<Vector2, Vector3>(vertices2D, v => v);
@@ -115,8 +115,10 @@ public class ProceduralMesh : MonoBehaviour {
                 force += (Vector3) Physics2D.gravity;
             }
 
+            var prevMag = velocities[i].magnitude;
+            var prevDir = velocities[i].normalized;
             // Mass of 1
-            var velocity = force * Time.fixedDeltaTime - (velocities[i] * (dampingConstant * Time.fixedDeltaTime));
+            var velocity = (force * Time.fixedDeltaTime) - (prevDir * Mathf.Pow(prevMag, 2) * dampingConstant * Time.fixedDeltaTime);
             velocities[i] = velocities[i] + velocity;
 
             // Damping is of the form F = -Cv where C is some damping constant.

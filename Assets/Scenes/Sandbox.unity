@@ -149,11 +149,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bdab31b3ccbadf409d5fceab0355f6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  controlVertices: 000000000100000002000000030000000400000031000000300000002f0000002e0000002d000000
+  moveSpeed: 10
+  controlVertices: 00000000
   numVertices: 50
-  springConstant: 400
-  dampingConstant: 10
+  springConstant: 100
+  dampingConstant: 1
   gravityEnabled: 0
 --- !u!4 &686056607
 Transform:
