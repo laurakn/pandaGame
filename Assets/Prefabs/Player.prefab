@@ -53,10 +53,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   maxJumpHeight: 7
-  timeToJumpApex: 0.3
-  fallingGravityMultiplier: 4
+  jumpSpeed: 4
   allowAirControl: 1
   moveSpeed: 30
+  fallVelocityScale: 1
+  jumpMomentumCutoff: 0.8
   facingLeft: 0
   grounded: 0
   jumping: 0
@@ -154,18 +155,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.288455, y: 0.61536074}
+  m_Offset: {x: -0.067197084, y: 0.6354747}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.6811171, y: 0.18071318}
-    oldSize: {x: 4.1400003, y: 8.35}
+    oldSize: {x: 0.9695551, y: 1.9555036}
     newSize: {x: 4.1400003, y: 8.35}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.6301937, y: 4.115136}
+  m_Size: {x: 0.5440173, y: 1.9025545}
   m_EdgeRadius: 0
 --- !u!114 &2401110108428778987
 MonoBehaviour:
@@ -179,6 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c299cf497be2a493fb83f0bcbc280164, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  recoveryTime: 1
 --- !u!50 &2401110108428778985
 Rigidbody2D:
   serializedVersion: 4
@@ -191,7 +193,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 1
-  m_Mass: 6.708469
+  m_Mass: 1.0350226
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 5
