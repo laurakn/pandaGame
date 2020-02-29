@@ -3,25 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
+    /** Inspector variables */
     public LayerMask groundLayer;
-
     public float maxJumpHeight = 4;
-    float timeToJumpApex;
-
-    public float fallingGravityMultiplier = 4;
-
+    public float jumpSpeed = 4;
     public bool allowAirControl = true;
+    public float moveSpeed = 6;
+    public float fallVelocityScale = 1;
+    public float jumpMomentumCutoff = .8f;
 
-    float accelerationTimeAirborne = .2f;
-    float accelerationTimeGrounded = .1f;
-    public float moveSpeed = 30;
+    /** Calculated variables */
+    float maxJumpTime;
+    float jumpHeightScaled;
 
-    float velocityXSmoothing;
-
+    /** Runtime variables */
     float jumpTime;
-    public float maxJumpTime;
-
-    float jumpForce;
 
     Vector2? directionalInput = null;
 
@@ -37,47 +33,88 @@ public class Player : MonoBehaviour {
     Rigidbody2D rigidbody;
     Collider2D collider;
 
+    SpriteRenderer spriteRenderer;
+
     Collision2D currentCollision = null;
 
     List<ContactPoint2D> contactPoints;
 
+    private bool slowingDown = false;
+
     void Start() {
         rigidbody = GetComponent<Rigidbody2D>();
         collider = GetComponent<Collider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         contactPoints = new List<ContactPoint2D>();
 
-        float gravityAcceleration = Physics2D.gravity.magnitude * rigidbody.gravityScale;
-        float jumpHeightScaled = maxJumpHeight * collider.bounds.extents.y * 2;
+        jumpHeightScaled = maxJumpHeight * spriteRenderer.bounds.extents.y * 2;
+        maxJumpTime = jumpHeightScaled / jumpSpeed;
 
-        // Based on the set jump height and jump time the force can be calculated:
-        jumpForce = ((rigidbody.mass * gravityAcceleration) / 2) * (
-            1 + Mathf.Sqrt(1 + ((8 * jumpHeightScaled) / (gravityAcceleration * maxJumpTime * maxJumpTime))));
+        rigidbody.gravityScale = fallVelocityScale * fallVelocityScale * jumpSpeed * jumpSpeed / (Physics2D.gravity.magnitude * jumpHeightScaled);
+
+        Debug.Log(spriteRenderer.bounds.extents.y * 2);
     }
 
     void FixedUpdate() {
+        handleHorizontalMovement();
+
+        handleJumpMechanics();
+
+        checkGround();
+    }
+
+    private void handleHorizontalMovement() {
         if (directionalInput.HasValue) {
             float targetVelocityX = directionalInput.Value.x * moveSpeed;
-            float forceMagnitude = rigidbody.mass * (targetVelocityX - rigidbody.velocity.x) / Time.fixedDeltaTime;
-            rigidbody.AddForce(forceMagnitude * Vector2.right);
+            setHorizontalVelocity(targetVelocityX);
+        }
+    }
+
+    private void handleJumpMechanics() {
+        if (jumpTime >= jumpMomentumCutoff * maxJumpTime && !slowingDown) {
+            Debug.DrawRay(spriteRenderer.bounds.min, Vector2.left * 20, Color.green, maxJumpTime * 2);
+            slowingDown = true;
+            setVerticalVelocity(
+                Mathf.Sqrt(
+                    2 * rigidbody.gravityScale * Physics2D.gravity.magnitude * jumpHeightScaled * (1 - jumpMomentumCutoff)));
         }
 
         if (jumping) {
-            rigidbody.AddForce(jumpForce * Vector2.up);
+            if (!slowingDown) {
+                setVerticalVelocity(jumpSpeed);
+            }
             jumpTime += Time.fixedDeltaTime;
+        } else if (hasJumpMomentum() && !slowingDown) {
+            scaleVerticalVelocity(.75f);
         }
 
         if (jumpTime >= maxJumpTime) {
             jumping = false;
+            jumpTime = 0;
         }
+    }
 
-        // Additional acceleration for falling for a snappier feel
-        if (!grounded && rigidbody.velocity.y <= 0) {
-            rigidbody.AddForce(rigidbody.mass * Physics2D.gravity * fallingGravityMultiplier);
-        }
+    private void scaleVerticalVelocity(float factor) {
+        setVerticalVelocity(factor * rigidbody.velocity.y);
+    }
 
+    private bool hasJumpMomentum() {
+        return jumpTime < maxJumpTime && rigidbody.velocity.y > 0;
+    }
+
+    private void checkGround() {
         // Raycast from center of the collider downwards to check if grounded
-        grounded = Physics2D.Raycast(collider.bounds.center, Vector2.down, collider.bounds.extents.y * 1.1f, groundLayer).collider != null;
+        grounded = Physics2D.Raycast(
+            collider.bounds.center, Vector2.down, collider.bounds.extents.y * 1.2f, groundLayer).collider != null;
+    }
+
+    private void setHorizontalVelocity(float speed) {
+        rigidbody.velocity = new Vector2(speed, rigidbody.velocity.y);
+    }
+
+    private void setVerticalVelocity(float speed) {
+        rigidbody.velocity = new Vector2(rigidbody.velocity.x, speed);
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
@@ -111,10 +148,16 @@ public class Player : MonoBehaviour {
         if (!jumping && grounded) {
             jumping = true;
             jumpTime = 0f;
+            slowingDown = false;
+
+            Debug.DrawRay(spriteRenderer.bounds.min, Vector2.left * 20, Color.red, maxJumpTime * 2);
+            Debug.DrawRay(spriteRenderer.bounds.min + new Vector3(0, jumpHeightScaled, 0), Vector2.left * 20, Color.red, maxJumpTime * 2);
         }
     }
 
     public void OnJumpInputUp() {
-        jumping = false;
+        if (!grounded && rigidbody.velocity.y > 0) {
+            jumping = false;
+        }
     }
 }
