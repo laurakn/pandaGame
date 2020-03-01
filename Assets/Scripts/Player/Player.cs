@@ -61,7 +61,7 @@ public class Player : MonoBehaviour {
 
         handleJumpMechanics();
 
-        checkGround();
+        //checkGround();
     }
 
     private void handleHorizontalMovement() {
@@ -105,8 +105,8 @@ public class Player : MonoBehaviour {
 
     private void checkGround() {
         // Raycast from center of the collider downwards to check if grounded
-        grounded = Physics2D.Raycast(
-            collider.bounds.center, Vector2.down, collider.bounds.extents.y * 1.2f, groundLayer).collider != null;
+        //grounded = Physics2D.Raycast(
+        //    collider.bounds.center, Vector2.down, collider.bounds.extents.y * 1.2f, groundLayer).collider != null;
     }
 
     private void setHorizontalVelocity(float speed) {
@@ -117,7 +117,16 @@ public class Player : MonoBehaviour {
         rigidbody.velocity = new Vector2(rigidbody.velocity.x, speed);
     }
 
+    public void OnCollisionEnter2DGround() {
+        grounded = true;
+    }
+
+    public void OnCollisionExit2DGround() {
+        grounded = false;
+    }
+
     void OnCollisionEnter2D(Collision2D collision) {
+        //if (collision.collider.CompareTag ("Player")
         //currentCollision = collision;
         //int numContacts = collision.GetContacts(contactPoints);
         //if (numContacts > 0)
@@ -127,9 +136,6 @@ public class Player : MonoBehaviour {
     void OnCollisionExit2D(Collision2D collision) {
         currentCollision = null;
     }
-
-    void Update() { }
-
     public void turn() {
         Vector2 theScale = transform.localScale;
         theScale.x *= -1;
