@@ -10,7 +10,7 @@ public class ImpactSnow : MonoBehaviour {
     }
 
     void OnCollisionEnter2D (Collision2D collision) {
-        if (collision.collider.CompareTag ("Player")) {
+        if (collision.collider.CompareTag ("Player") && collision.contacts[0].normal == new Vector2(0, -1)) {
             Vector2 position = collision.GetContact(0).point; 
             snowPuff(position);
         }
