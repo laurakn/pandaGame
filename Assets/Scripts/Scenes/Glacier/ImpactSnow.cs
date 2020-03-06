@@ -5,8 +5,10 @@ using UnityEngine;
 public class ImpactSnow : MonoBehaviour {
 
     public GameObject snowObject;
-    // Start is called before the first frame update
+    private int count = 0;
+    private Transform[] allChildren;
     void Start() { 
+        allChildren = snowObject.GetComponentsInChildren<Transform>(true);
     }
 
     void OnCollisionEnter2D (Collision2D collision) {
@@ -16,7 +18,9 @@ public class ImpactSnow : MonoBehaviour {
         }
     }
     void snowPuff (Vector2 position) {
-    GameObject clone = Instantiate(snowObject, new Vector3(position.x, position.y, 1), Quaternion.identity);
-    clone.SetActive(true);
+        count  %=  allChildren.Length - 1;
+        count += 1;
+        allChildren[count].transform.localPosition = position;
+        allChildren[count].gameObject.SetActive(true);
     }
 }

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
     /** Inspector variables */
-    public LayerMask groundLayer;
     public float maxJumpHeight = 4;
     public float jumpSpeed = 4;
     public bool allowAirControl = true;
@@ -27,10 +26,14 @@ public class Player : MonoBehaviour {
     [HideInInspector]
     public bool grounded = false;
 
+    [HideInInspector] 
+    public bool atWall = false;
+
     [HideInInspector]
     public bool jumping = false;
 
     Rigidbody2D rigidbody;
+
     Collider2D collider;
 
     SpriteRenderer spriteRenderer;
@@ -40,6 +43,7 @@ public class Player : MonoBehaviour {
     List<ContactPoint2D> contactPoints;
 
     private bool slowingDown = false;
+
 
     void Start() {
         rigidbody = GetComponent<Rigidbody2D>();
@@ -60,8 +64,6 @@ public class Player : MonoBehaviour {
         handleHorizontalMovement();
 
         handleJumpMechanics();
-
-        //checkGround();
     }
 
     private void handleHorizontalMovement() {
@@ -103,30 +105,23 @@ public class Player : MonoBehaviour {
         return jumpTime < maxJumpTime && rigidbody.velocity.y > 0;
     }
 
-    private void checkGround() {
-        // Raycast from center of the collider downwards to check if grounded
-        //grounded = Physics2D.Raycast(
-        //    collider.bounds.center, Vector2.down, collider.bounds.extents.y * 1.2f, groundLayer).collider != null;
-    }
-
     private void setHorizontalVelocity(float speed) {
-        rigidbody.velocity = new Vector2(speed, rigidbody.velocity.y);
+        rigidbody.velocity = new Vector2(speed, rigidbody.velocity.y); 
     }
 
     private void setVerticalVelocity(float speed) {
         rigidbody.velocity = new Vector2(rigidbody.velocity.x, speed);
     }
 
-    public void OnCollisionEnter2DGround() {
-        grounded = true;
+    public void Grounded(bool b) {
+        grounded = b;
     }
 
-    public void OnCollisionExit2DGround() {
-        grounded = false;
+    public void AtWall(bool b) {
+        atWall = b;
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
-        //if (collision.collider.CompareTag ("Player")
         //currentCollision = collision;
         //int numContacts = collision.GetContacts(contactPoints);
         //if (numContacts > 0)
@@ -151,7 +146,7 @@ public class Player : MonoBehaviour {
     }
 
     public void OnJumpInputDown() {
-        if (!jumping && grounded) {
+        if (!jumping && (grounded || atWall)) {
             jumping = true;
             jumpTime = 0f;
             slowingDown = false;
