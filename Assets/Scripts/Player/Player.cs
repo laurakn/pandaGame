@@ -6,7 +6,6 @@ public class Player : MonoBehaviour {
     /** Inspector variables */
     public float maxJumpHeight = 4;
     public float jumpSpeed = 4;
-    public bool allowAirControl = true;
     public float moveSpeed = 6;
     public float fallVelocityScale = 1;
     public float jumpMomentumCutoff = .8f;
@@ -18,7 +17,8 @@ public class Player : MonoBehaviour {
     /** Runtime variables */
     float jumpTime;
 
-    Vector2? directionalInput = null;
+    [HideInInspector]
+    public Vector2? directionalInput = null;
 
     [HideInInspector]
     public bool facingLeft = false;
@@ -32,30 +32,21 @@ public class Player : MonoBehaviour {
     [HideInInspector]
     public bool jumping = false;
 
-    Rigidbody2D rigidbody;
-
-    Collider2D collider;
+    Rigidbody2D rb;
 
     SpriteRenderer spriteRenderer;
-
-    Collision2D currentCollision = null;
-
-    List<ContactPoint2D> contactPoints;
 
     private bool slowingDown = false;
 
 
     void Start() {
-        rigidbody = GetComponent<Rigidbody2D>();
-        collider = GetComponent<Collider2D>();
+        rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-
-        contactPoints = new List<ContactPoint2D>();
 
         jumpHeightScaled = maxJumpHeight * spriteRenderer.bounds.extents.y * 2;
         maxJumpTime = jumpHeightScaled / jumpSpeed;
 
-        rigidbody.gravityScale = fallVelocityScale * fallVelocityScale * jumpSpeed * jumpSpeed / (Physics2D.gravity.magnitude * jumpHeightScaled);
+        rb.gravityScale = fallVelocityScale * fallVelocityScale * jumpSpeed * jumpSpeed / (Physics2D.gravity.magnitude * jumpHeightScaled);
 
         Debug.Log(spriteRenderer.bounds.extents.y * 2);
     }
@@ -79,7 +70,7 @@ public class Player : MonoBehaviour {
             slowingDown = true;
             setVerticalVelocity(
                 Mathf.Sqrt(
-                    2 * rigidbody.gravityScale * Physics2D.gravity.magnitude * jumpHeightScaled * (1 - jumpMomentumCutoff)));
+                    2 * rb.gravityScale * Physics2D.gravity.magnitude * jumpHeightScaled * (1 - jumpMomentumCutoff)));
         }
 
         if (jumping) {
@@ -98,19 +89,19 @@ public class Player : MonoBehaviour {
     }
 
     private void scaleVerticalVelocity(float factor) {
-        setVerticalVelocity(factor * rigidbody.velocity.y);
+        setVerticalVelocity(factor * rb.velocity.y);
     }
 
     private bool hasJumpMomentum() {
-        return jumpTime < maxJumpTime && rigidbody.velocity.y > 0;
+        return jumpTime < maxJumpTime && rb.velocity.y > 0;
     }
 
     private void setHorizontalVelocity(float speed) {
-        rigidbody.velocity = new Vector2(speed, rigidbody.velocity.y); 
+        rb.velocity = new Vector2(speed, rb.velocity.y); 
     }
 
     private void setVerticalVelocity(float speed) {
-        rigidbody.velocity = new Vector2(rigidbody.velocity.x, speed);
+        rb.velocity = new Vector2(rb.velocity.x, speed);
     }
 
     public void Grounded(bool b) {
@@ -121,28 +112,11 @@ public class Player : MonoBehaviour {
         atWall = b;
     }
 
-    void OnCollisionEnter2D(Collision2D collision) {
-        //currentCollision = collision;
-        //int numContacts = collision.GetContacts(contactPoints);
-        //if (numContacts > 0)
-        //    Debug.Log(contactPoints[0]);
-    }
-
-    void OnCollisionExit2D(Collision2D collision) {
-        currentCollision = null;
-    }
     public void turn() {
         Vector2 theScale = transform.localScale;
         theScale.x *= -1;
         transform.localScale = theScale;
         facingLeft = !facingLeft;
-    }
-
-    public void SetDirectionalInput(Vector2 input) {
-        if (allowAirControl || grounded)
-            directionalInput = input;
-        else
-            directionalInput = null;
     }
 
     public void OnJumpInputDown() {
@@ -157,7 +131,7 @@ public class Player : MonoBehaviour {
     }
 
     public void OnJumpInputUp() {
-        if (!grounded && rigidbody.velocity.y > 0) {
+        if (!grounded && rb.velocity.y > 0) {
             jumping = false;
         }
     }

@@ -7,10 +7,10 @@ public class HealthController : MonoBehaviour {
     GameObject[] healthLanterns;
 
     Animator[] animList;
+    public GameObject objectToFollow;
       
     [HideInInspector]
     public static int updateHealth;
-    public GameObject objectToFollow;
 
     void Start () {
         updateHealth = GameManager.health;

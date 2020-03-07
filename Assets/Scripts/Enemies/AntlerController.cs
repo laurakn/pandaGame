@@ -8,7 +8,7 @@ public class AntlerController : EnemyBaseClass {
     
   public float distancePerSecond;
   public LayerMask wallLayer;
-  private Rigidbody2D rigidbody;
+  private Rigidbody2D rb;
   private float attackSpeed;
 
   void Start () {
@@ -16,7 +16,7 @@ public class AntlerController : EnemyBaseClass {
     facingLeft = 1; // 1 true, -1 false
     mainPlayer = GameObject.FindWithTag("Player");
     playerSpeed = mainPlayer.GetComponent<Player>().moveSpeed;
-    rigidbody = GetComponent<Rigidbody2D>();
+    rb = GetComponent<Rigidbody2D>();
     engage = false;
     checkRaycastSight = false;
     rayLength = triggerRaycastDistance;
@@ -50,10 +50,10 @@ public class AntlerController : EnemyBaseClass {
   public void move() {
     // movement when not engaged with player
     //float targetVelocityX = -facingLeft * distancePerSecond;
-    //float forceMagnitude = rigidbody.mass * (targetVelocityX - rigidbody.velocity.x) / Time.fixedDeltaTime;
-    //rigidbody.AddForce(forceMagnitude * Vector2.right);
+    //float forceMagnitude = rb.mass * (targetVelocityX - rb.velocity.x) / Time.fixedDeltaTime;
+    //rb.AddForce(forceMagnitude * Vector2.right);
     //transform.position = new Vector2 (transform.position.x + facingLeft*distancePerSecond*Time.deltaTime, transform.position.y);
-    rigidbody.MovePosition(transform.position - facingLeft*Vector3.right*distancePerSecond * Time.fixedDeltaTime);
+    rb.MovePosition(transform.position - facingLeft*Vector3.right*distancePerSecond * Time.fixedDeltaTime);
   }
   void turn() {
       facingLeft *= -1;

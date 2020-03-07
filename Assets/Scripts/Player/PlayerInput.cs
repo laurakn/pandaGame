@@ -6,11 +6,13 @@ using System.Collections.Generic;
 public class PlayerInput : MonoBehaviour {
 
 	Player player;
-  	Animator animator;
+  	PlayerAnimation anim;
+
+	bool moving = false;
 
 	void Start () {
 		player = GetComponent<Player> ();
-    	animator = GetComponent<Animator>();
+    	anim = GetComponent<PlayerAnimation>();
 	}
 
 	void Update () {
@@ -19,16 +21,13 @@ public class PlayerInput : MonoBehaviour {
 		    }
 
 		Vector2 directionalInput = new Vector2 (Input.GetAxisRaw ("Horizontal"), Input.GetAxisRaw ("Vertical"));
-		player.SetDirectionalInput (directionalInput);
+		player.directionalInput = directionalInput;
 
-    bool moving = directionalInput.x != 0;
+    	moving = directionalInput.x != 0;
 
-    animator.SetBool("grounded", player.grounded);
-    animator.SetBool("moving", moving);
-
-    if ((directionalInput.x < 0) != player.facingLeft && moving) {
-      player.turn();
-    }
+		if ((directionalInput.x < 0) != player.facingLeft && moving) {
+		player.turn();
+		}
 
 		if (Input.GetKeyDown (KeyCode.Space)) {
 			player.OnJumpInputDown ();
@@ -36,5 +35,7 @@ public class PlayerInput : MonoBehaviour {
 		if (Input.GetKeyUp (KeyCode.Space)) {
 			player.OnJumpInputUp ();
 		}
+
+		anim.HandleAnimations(moving, player.grounded, player.jumping);
 	}
 }
