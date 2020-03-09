@@ -54,10 +54,6 @@ public class Player : MonoBehaviour {
 
         jumpHeightScaled = maxJumpHeight * spriteRenderer.bounds.extents.y * 2;
         maxJumpTime = jumpHeightScaled / jumpSpeed;
-
-        rigidbody.gravityScale = fallVelocityScale * fallVelocityScale * jumpSpeed * jumpSpeed / (Physics2D.gravity.magnitude * jumpHeightScaled);
-
-        Debug.Log(spriteRenderer.bounds.extents.y * 2);
     }
 
     void FixedUpdate() {
@@ -75,7 +71,6 @@ public class Player : MonoBehaviour {
 
     private void handleJumpMechanics() {
         if (jumpTime >= jumpMomentumCutoff * maxJumpTime && !slowingDown) {
-            Debug.DrawRay(spriteRenderer.bounds.min, Vector2.left * 20, Color.green, maxJumpTime * 2);
             slowingDown = true;
             setVerticalVelocity(
                 Mathf.Sqrt(
@@ -150,9 +145,6 @@ public class Player : MonoBehaviour {
             jumping = true;
             jumpTime = 0f;
             slowingDown = false;
-
-            Debug.DrawRay(spriteRenderer.bounds.min, Vector2.left * 20, Color.red, maxJumpTime * 2);
-            Debug.DrawRay(spriteRenderer.bounds.min + new Vector3(0, jumpHeightScaled, 0), Vector2.left * 20, Color.red, maxJumpTime * 2);
         }
     }
 
