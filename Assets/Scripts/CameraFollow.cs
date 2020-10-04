@@ -13,10 +13,6 @@ public class CameraFollow : MonoBehaviour {
 
     private Vector2 velocity;
 
-    void Start () {
-
-    }
-
     // LateUpdate is called after Update each frame
     //void LateUpdate ()  {
     //    // Set the position of the camera's transform to be the same as the player's, but offset by the calculated offset distance.
@@ -27,7 +23,7 @@ public class CameraFollow : MonoBehaviour {
         float posX = Mathf.SmoothDamp(transform.position.x, objectToFollow.transform.position.x, ref velocity.x, smoothTimeX);
         float posY = Mathf.SmoothDamp(transform.position.y, objectToFollow.transform.position.y, ref velocity.y, smoothTimeY);
 
-        transform.position = new Vector2 (posX, posY);
+        transform.position = new Vector3 (posX, posY, transform.position.z);
 
         if (bounds) {
           transform.position = new Vector2 (Mathf.Clamp(transform.position.x, minCameraPos.x, maxCameraPos.x), Mathf.Clamp(transform.position.y, minCameraPos.y, maxCameraPos.y));
