@@ -19,6 +19,14 @@ public class GroundDetection : MonoBehaviour {
     }
 
     void OnTriggerEnter2D(Collider2D other) {
+        CheckGrounded();
+    }
+
+    void OnTriggerExit2D(Collider2D other) {
+        player.grounded = false;
+    }
+
+    public void CheckGrounded() {
         Vector3 right = col.bounds.center + new Vector3 (groundCheckExtentx, groundCheckExtenty, 0);
         Vector3 left = col.bounds.center + new Vector3 (-groundCheckExtentx, groundCheckExtenty, 0);
         bool checkLeft = Physics2D.Raycast(left, Vector2.down, raycastLength, groundLayer).collider != null;  
@@ -27,10 +35,7 @@ public class GroundDetection : MonoBehaviour {
         Debug.DrawRay(right, Vector2.down*raycastLength, Color.red, 10);
         Debug.DrawRay(left, Vector2.down*raycastLength, Color.red, 10);
 
-        player.Grounded(checkLeft || checkRight);
+        player.grounded = checkLeft || checkRight;
     }
-
-    void OnTriggerExit2D(Collider2D other) {
-        player.Grounded(false);
-    }
+    
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+//using Math;
 
 public class Player : MonoBehaviour {
     /** Inspector variables */
@@ -38,10 +39,14 @@ public class Player : MonoBehaviour {
 
     private bool slowingDown = false;
 
+    GroundDetection groundDetection;
+
 
     void Start() {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        groundDetection = GetComponentInChildren<GroundDetection>();
 
         jumpHeightScaled = maxJumpHeight * spriteRenderer.bounds.extents.y * 2;
         maxJumpTime = jumpHeightScaled / jumpSpeed;
@@ -55,6 +60,10 @@ public class Player : MonoBehaviour {
         handleHorizontalMovement();
 
         handleJumpMechanics();
+
+        if (!grounded && Mathf.Abs(rb.velocity.y) < 0.1) {
+            groundDetection.CheckGrounded();
+        }
     }
 
     private void handleHorizontalMovement() {
@@ -71,6 +80,9 @@ public class Player : MonoBehaviour {
             setVerticalVelocity(
                 Mathf.Sqrt(
                     2 * rb.gravityScale * Physics2D.gravity.magnitude * jumpHeightScaled * (1 - jumpMomentumCutoff)));
+
+            jumping = false;
+            jumpTime = 0;
         }
 
         if (jumping) {
@@ -82,10 +94,10 @@ public class Player : MonoBehaviour {
             scaleVerticalVelocity(.75f);
         }
 
-        if (jumpTime >= maxJumpTime) {
-            jumping = false;
-            jumpTime = 0;
-        }
+        //if (jumpTime >= maxJumpTime) {
+        //    jumping = false;
+        //    jumpTime = 0;
+        //}
     }
 
     private void scaleVerticalVelocity(float factor) {
@@ -104,10 +116,6 @@ public class Player : MonoBehaviour {
         rb.velocity = new Vector2(rb.velocity.x, speed);
     }
 
-    public void Grounded(bool b) {
-        grounded = b;
-    }
-
     public void AtWall(bool b) {
         atWall = b;
     }
@@ -124,6 +132,7 @@ public class Player : MonoBehaviour {
             jumping = true;
             jumpTime = 0f;
             slowingDown = false;
+            grounded = false;
 
             Debug.DrawRay(spriteRenderer.bounds.min, Vector2.left * 20, Color.red, maxJumpTime * 2);
             Debug.DrawRay(spriteRenderer.bounds.min + new Vector3(0, jumpHeightScaled, 0), Vector2.left * 20, Color.red, maxJumpTime * 2);
